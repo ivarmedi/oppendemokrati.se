@@ -1,0 +1,29 @@
+{% load riksdag_tags %}
+<ul class="ledamot-grid">
+  {% for ledamot in ledamoter %}
+  <li>
+    <a class="ledamot-card" href="{{ ledamot.get_absolute_url }}">
+      <div class="portrait">
+        {% if ledamot.bild_url_liten or ledamot.bild_url %}
+        <img src="{{ ledamot.bild_url_liten|default:ledamot.bild_url }}" alt="" width="80" height="107" loading="lazy">
+        {% endif %}
+      </div>
+      <div class="meta">
+        <span class="badge" style="--parti: {{ ledamot.parti|parti_farg }}">{{ ledamot.parti }}</span>
+        <strong>{{ ledamot.namn }}</strong>
+        <span class="muted">{{ ledamot.valkrets }}</span>
+        <dl class="mini-stats">
+          <div>
+            <dt>Närvaro</dt>
+            <dd>{{ ledamot.narvaro_pct|pct }}</dd>
+          </div>
+          <div>
+            <dt>Partilinje</dt>
+            <dd>{{ ledamot.partilinje_pct|pct }}</dd>
+          </div>
+        </dl>
+      </div>
+    </a>
+  </li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,59 @@
+{% load riksdag_tags %}
+<p class="count">{{ page.paginator.count }} voteringar</p>
+{% if page.object_list %}
+<table class="votes">
+  <thead>
+    <tr>
+      {% for item in sorts %}
+      <th {% if item.key != "arende" and item.key != "titel" %}class="num"{% endif %} aria-sort="{{ item.aria_sort }}">
+        <a href="{% votering_list_url sort=item.key dir=item.next_dir %}"
+           hx-get="{% votering_list_url sort=item.key dir=item.next_dir %}"
+           hx-target="#votering-panel"
+           hx-push-url="true"
+           class="{% if item.active %}is-active{% endif %}">
+          {{ item.label }}
+          {% if item.active %}
+            <span class="sort-ind" aria-hidden="true">{% if dir == "desc" %}↓{% else %}↑{% endif %}</span>
+          {% endif %}
+        </a>
+      </th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for votering in page %}
+    <tr>
+      <td class="nowrap">{{ votering.datum|date:"Y-m-d" }}</td>
+      <td>
+        <a href="{{ votering.get_absolute_url }}">{{ votering.beteckning }} p{{ votering.punkt }}</a>
+        <span class="muted block">{{ votering.rm }}</span>
+      </td>
+      <td>{{ votering.rubrik }}</td>
+      <td class="num">{{ votering.ja }}</td>
+      <td class="num">{{ votering.nej }}</td>
+      <td class="num">{{ votering.avstar }}</td>
+      <td class="num">{{ votering.franvarande }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<nav class="pager">
+  {% if page.has_previous %}
+  <a href="{% votering_list_url page=page.previous_page_number %}"
+     hx-get="{% votering_list_url page=page.previous_page_number %}"
+     hx-target="#votering-panel"
+     hx-push-url="true">Föregående</a>
+  {% endif %}
+  <span>Sida {{ page.number }} av {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}
+  <a href="{% votering_list_url page=page.next_page_number %}"
+     hx-get="{% votering_list_url page=page.next_page_number %}"
+     hx-target="#votering-panel"
+     hx-push-url="true">Nästa</a>
+  {% endif %}
+</nav>
+{% else %}
+<div class="empty">
+  <p>Inga voteringar ännu. Kör <code>python manage.py sync_riksdagen</code>.</p>
+</div>
+{% endif %}

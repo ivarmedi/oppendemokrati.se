@@ -1,0 +1,66 @@
+{% load riksdag_tags %}
+<form class="filters"
+      hx-get="{% url 'ledamot_list' %}"
+      hx-target="#ledamot-panel"
+      hx-push-url="true"
+      hx-trigger="input delay:250ms from:input[type=search], change">
+  <label class="search">
+    <span>Sök</span>
+    <input type="search" name="q" value="{{ q }}" placeholder="Namn eller valkrets" autocomplete="off">
+  </label>
+  <label>
+    <span>Sortera</span>
+    <select name="sort" hx-vals='{"dir": ""}'>
+      {% for item in sorts %}
+      <option value="{{ item.key }}" {% if item.active %}selected{% endif %}>{{ item.label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    <span>Ordning</span>
+    <select name="dir">
+      <option value="asc" {% if dir == "asc" %}selected{% endif %}>Stigande</option>
+      <option value="desc" {% if dir == "desc" %}selected{% endif %}>Fallande</option>
+    </select>
+  </label>
+  <fieldset>
+    <legend>Visa</legend>
+    <label class="chip">
+      <input type="radio" name="view" value="kort" {% if view != "tabell" %}checked{% endif %}>
+      Kort
+    </label>
+    <label class="chip">
+      <input type="radio" name="view" value="tabell" {% if view == "tabell" %}checked{% endif %}>
+      Tabell
+    </label>
+  </fieldset>
+  <fieldset>
+    <legend>Parti</legend>
+    <label class="chip">
+      <input type="radio" name="parti" value="" {% if not parti %}checked{% endif %}>
+      Alla
+    </label>
+    {% for party in party_filters %}
+      {% if party.kod != "-" %}
+      <label class="chip">
+        <input type="radio" name="parti" value="{{ party.kod }}" {% if parti == party.kod %}checked{% endif %}>
+        <i class="swatch" style="--parti: {{ party.kod|parti_farg }}"></i>
+        {{ party.kod }}
+      </label>
+      {% endif %}
+    {% endfor %}
+  </fieldset>
+</form>
+
+<p class="count">{{ antal }} ledamöter</p>
+{% if ledamoter %}
+  {% if view == "tabell" %}
+    {% include "riksdag/partials/ledamot_table.html" %}
+  {% else %}
+    {% include "riksdag/partials/ledamot_grid.html" %}
+  {% endif %}
+{% else %}
+<div class="empty">
+  <p>Inga ledamöter matchade. Om listan är tom: kör <code>python manage.py sync_riksdagen</code>.</p>
+</div>
+{% endif %}

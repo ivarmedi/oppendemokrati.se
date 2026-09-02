@@ -1,0 +1,48 @@
+{% load riksdag_tags %}
+<div class="table-wrap">
+<table class="ledamot-table">
+  <thead>
+    <tr>
+      {% for item in sorts %}
+      <th aria-sort="{{ item.aria_sort }}">
+        <a href="{% ledamot_list_url sort=item.key dir=item.next_dir %}"
+           hx-get="{% ledamot_list_url sort=item.key dir=item.next_dir %}"
+           hx-target="#ledamot-panel"
+           hx-push-url="true"
+           class="{% if item.active %}is-active{% endif %}">
+          {{ item.label }}
+          {% if item.active %}
+            <span class="sort-ind" aria-hidden="true">{% if dir == "desc" %}↓{% else %}↑{% endif %}</span>
+          {% endif %}
+        </a>
+      </th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for ledamot in ledamoter %}
+    <tr>
+      <td>
+        <a class="ledamot-name" href="{{ ledamot.get_absolute_url }}">
+          <span class="portrait tiny">
+            {% if ledamot.bild_url_liten or ledamot.bild_url %}
+            <img src="{{ ledamot.bild_url_liten|default:ledamot.bild_url }}" alt="" width="40" height="53" loading="lazy">
+            {% endif %}
+          </span>
+          <strong>{{ ledamot.namn }}</strong>
+        </a>
+      </td>
+      <td>
+        <span class="badge" style="--parti: {{ ledamot.parti|parti_farg }}">{{ ledamot.parti }}</span>
+      </td>
+      <td>{{ ledamot.valkrets }}</td>
+      <td class="num">{{ ledamot.narvaro_pct|pct }}</td>
+      <td class="num">{{ ledamot.partilinje_pct|pct }}</td>
+      <td class="num">{{ ledamot.antal_mot_partiet }}</td>
+      <td class="num">{{ ledamot.franvaro_pct|pct }}</td>
+      <td class="num">{{ ledamot.fodd_ar|default:"–" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>

@@ -1,0 +1,14 @@
+{% extends "riksdag/base.html" %}
+
+{% block title %}Voteringar · Öppen Demokrati{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <h1>Voteringar</h1>
+  <p>Huvudvoteringar i kammaren. Ett betänkande kan ha flera förslagspunkter — varje punkt visas för sig.</p>
+</section>
+
+<div id="votering-panel">
+  {% include "riksdag/partials/votering_panel.html" %}
+</div>
+{% endblock %}

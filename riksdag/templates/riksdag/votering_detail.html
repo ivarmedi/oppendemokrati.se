@@ -1,0 +1,105 @@
+{% extends "riksdag/base.html" %}
+{% load riksdag_tags %}
+
+{% block title %}{{ votering.beteckning }} · Öppen Demokrati{% endblock %}
+
+{% block content %}
+<article class="profile">
+  <header class="page-head">
+    <p class="kicker">{{ votering.rm }} · {{ votering.datum|date:"Y-m-d" }}</p>
+    <h1>{{ votering.beteckning }} · punkt {{ votering.punkt }}</h1>
+    <p class="lede">{{ votering.rubrik }}{% if bakgrund.punkt_rubrik %} · {{ bakgrund.punkt_rubrik }}{% endif %}</p>
+  </header>
+
+  {% if bakgrund.sammanfattning or bakgrund.punkt_text or bakgrund.related %}
+  <section class="bakgrund">
+    <h2>Vad röstades det om?</h2>
+    {% if bakgrund.punkt_rubrik or bakgrund.punkt_text or bakgrund.motforslag_nummer %}
+    <div class="punkt-box">
+      {% if bakgrund.motforslag_nummer %}
+      <p class="lede">Ledamöterna fick två färdiga texter och valde en. Ja och nej betyder inte “gillar du frågan?” — det är två knappar för två förslag.</p>
+      <div class="ballot">
+        <article class="ballot-card ballot-yes">
+          <h3><span class="vote vote-yes">Ja</span> Utskottets förslag</h3>
+          <p class="muted">{{ votering.ja }} ledamöter tryckte på den här knappen.</p>
+          {% if bakgrund.punkt_text %}<p>{{ bakgrund.punkt_text|linebreaksbr }}</p>{% endif %}
+        </article>
+        <article class="ballot-card ballot-no">
+          <h3><span class="vote vote-no">Nej</span> Motförslag från {{ bakgrund.motforslag_partier|default:"minoriteten" }}</h3>
+          <p class="muted">{{ votering.nej }} ledamöter tryckte på den här knappen. I betänkandet heter texten reservation {{ bakgrund.motforslag_nummer }}.</p>
+          <p>{% if bakgrund.motforslag_partier %}{{ bakgrund.motforslag_partier }}{% else %}De{% endif %} hade skrivit en egen text. I kammaren är <strong>nej-knappen</strong> sättet att rösta på den texten — inte ett avståndstagande från ämnet.</p>
+        </article>
+      </div>
+      {% else %}
+      <h3>{% if bakgrund.punkt_rubrik %}{{ bakgrund.punkt_rubrik }}{% else %}Förslagspunkt {{ votering.punkt }}{% endif %}</h3>
+      <p class="lede">Här röstade kammaren ja eller nej till utskottets text. Ja = anta den. Nej = avslå den.</p>
+      {% if bakgrund.punkt_text %}<p>{{ bakgrund.punkt_text|linebreaksbr }}</p>{% endif %}
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if bakgrund.sammanfattning %}
+    <h3>Om hela ärendet</h3>
+    <p>{{ bakgrund.sammanfattning|linebreaksbr }}</p>
+    {% endif %}
+    {% if bakgrund.utskottet %}
+    <p class="muted">Utskottets linje: {{ bakgrund.utskottet }}</p>
+    {% endif %}
+    {% if bakgrund.beslut %}
+    <p class="muted">Riksdagens beslut: {{ bakgrund.beslut }}</p>
+    {% endif %}
+    {% if bakgrund.related %}
+    <h3>Behandlade dokument</h3>
+    <ul class="doc-list">
+      {% for doc in bakgrund.related %}
+      <li>
+        <span class="doc-typ">{{ doc.typ_namn }}</span>
+        {% if doc.url %}
+        <a href="{{ doc.url }}" rel="noreferrer">{{ doc.rm }}:{{ doc.beteckning }} {{ doc.titel }}</a>
+        {% else %}
+        {{ doc.rm }}:{{ doc.beteckning }} {{ doc.titel }}
+        {% endif %}
+        {% if doc.undertitel %}<span class="muted block">{{ doc.undertitel }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <p class="doc-links">
+      {% if bakgrund.html_url %}<a class="plain" href="{{ bakgrund.html_url }}" rel="noreferrer">Läs betänkandet</a>{% endif %}
+      {% if bakgrund.pdf_url %}<a class="plain" href="{{ bakgrund.pdf_url }}" rel="noreferrer">PDF</a>{% endif %}
+    </p>
+  </section>
+  {% endif %}
+
+  <section class="stat-row compact">
+    <div class="stat"><p class="stat-value">{{ votering.ja }}</p><p class="stat-label">Ja</p></div>
+    <div class="stat"><p class="stat-value">{{ votering.nej }}</p><p class="stat-label">Nej</p></div>
+    <div class="stat"><p class="stat-value">{{ votering.avstar }}</p><p class="stat-label">Avstår</p></div>
+    <div class="stat"><p class="stat-value">{{ votering.franvarande }}</p><p class="stat-label">Frånvarande</p></div>
+  </section>
+
+  {% for group in groups %}
+  <section class="party-block">
+    <header>
+      <h2><i class="swatch" style="--parti: {{ group.kod|parti_farg }}"></i> {{ group.namn }}</h2>
+      <p class="muted">
+        Linje: <strong>{{ group.linje|default:"splittrat" }}</strong>
+        · Ja {{ group.counts.Ja }} · Nej {{ group.counts.Nej }} · Avstår {{ group.counts.Avstår }} · Frånvarande {{ group.counts.Frånvarande }}
+      </p>
+    </header>
+    <ul class="roster">
+      {% for rost in group.roster %}
+      <li>
+        {% if rost.ledamot %}
+        <a href="{{ rost.ledamot.get_absolute_url }}">{{ rost.namn }}</a>
+        {% else %}
+        {{ rost.namn }}
+        {% endif %}
+        <span class="vote {{ rost.rost|rost_klass }}">{{ rost.rost }}</span>
+        {% if rost.med_partiet == False %}<span class="warn">avvek</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+</article>
+{% endblock %}

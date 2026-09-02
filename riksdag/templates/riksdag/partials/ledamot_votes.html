@@ -1,0 +1,37 @@
+{% load riksdag_tags %}
+<p class="count">{{ roster_total }} träffar{% if roster_total > roster|length %}, visar {{ roster|length }} senaste{% endif %}</p>
+{% if roster %}
+<table class="votes">
+  <thead>
+    <tr>
+      <th>Datum</th>
+      <th>Ärende</th>
+      <th>Röst</th>
+      <th>Partiet</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for rost in roster %}
+    <tr>
+      <td class="nowrap">{{ rost.votering.datum|date:"Y-m-d" }}</td>
+      <td>
+        <a href="{{ rost.votering.get_absolute_url }}">{{ rost.votering.beteckning }} p{{ rost.votering.punkt }}</a>
+        <span class="muted block">{{ rost.votering.rubrik }}</span>
+      </td>
+      <td><span class="vote {{ rost.rost|rost_klass }}">{{ rost.rost }}</span></td>
+      <td>
+        {% if rost.med_partiet == True %}
+          <span class="ok">Med linjen</span>
+        {% elif rost.med_partiet == False %}
+          <span class="warn">Avvek</span>
+        {% else %}
+          <span class="muted">–</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">Inga voteringar matchade filtret.</p>
+{% endif %}

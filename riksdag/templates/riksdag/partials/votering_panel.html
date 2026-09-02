@@ -1,0 +1,36 @@
+<form class="filters"
+      hx-get="{% url 'votering_list' %}"
+      hx-target="#votering-panel"
+      hx-push-url="true"
+      hx-trigger="input delay:250ms from:input[type=search], change">
+  <label class="search">
+    <span>Sök</span>
+    <input type="search" name="q" value="{{ q }}" placeholder="Titel eller beteckning, t.ex. AU10" autocomplete="off">
+  </label>
+  <label>
+    <span>Riksmöte</span>
+    <select name="rm">
+      <option value="">Alla</option>
+      {% for year in rms %}
+      <option value="{{ year }}" {% if rm == year %}selected{% endif %}>{{ year }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    <span>Sortera</span>
+    <select name="sort" hx-vals='{"dir": ""}'>
+      {% for item in sorts %}
+      <option value="{{ item.key }}" {% if item.active %}selected{% endif %}>{{ item.label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    <span>Ordning</span>
+    <select name="dir">
+      <option value="asc" {% if dir == "asc" %}selected{% endif %}>Stigande</option>
+      <option value="desc" {% if dir == "desc" %}selected{% endif %}>Fallande</option>
+    </select>
+  </label>
+</form>
+
+{% include "riksdag/partials/votering_table.html" %}

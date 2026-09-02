@@ -1,0 +1,76 @@
+{% extends "riksdag/base.html" %}
+
+{% block title %}Kommande · Öppen Demokrati{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <h1>Kommande</h1>
+  <p>Planerade beslut och debatter i kammaren. Kalendern är preliminär och kan ändras med kort varsel.</p>
+</section>
+
+{% if vote_days %}
+<p class="count">
+  {% if antal_beslut %}{{ antal_beslut }} beslut{% endif %}{% if antal_beslut and antal_debatter %}, {% endif %}{% if antal_debatter %}{{ antal_debatter }} debatter{% endif %}
+</p>
+{% for day in vote_days %}
+<section class="day-block">
+  <h2>{{ day.datum|date:"l j F Y" }}</h2>
+  {% for event in day.events %}
+  <article class="event kind-{{ event.kind }}">
+    <header class="event-head">
+      <time datetime="{{ event.starts_at|date:'c' }}">{% if event.status == "Ingen starttid" %}–{% else %}{{ event.starts_at|date:"H:i" }}{% endif %}</time>
+      <h3>{{ event.kind_label }}</h3>
+      {% if event.status and event.status != "Ingen starttid" %}<p class="muted">{{ event.status }}</p>{% endif %}
+    </header>
+    {% if event.documents %}
+    <ul class="doc-list">
+      {% for doc in event.documents %}
+      <li>
+        {% if doc.votering_url %}
+        <a href="{{ doc.votering_url }}">{{ doc.beteckning }}</a>
+        {% elif doc.url %}
+        <a href="{{ doc.url }}" rel="noreferrer">{{ doc.beteckning|default:doc.dok_id }}</a>
+        {% else %}
+        <strong>{{ doc.beteckning }}</strong>
+        {% endif %}
+        {% if doc.rm %}<span class="muted">{{ doc.rm }}</span>{% endif %}
+        {% if doc.titel %}<span class="block">{{ doc.titel }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% elif event.summary != event.kind_label %}
+    <p>{{ event.summary }}</p>
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endfor %}
+{% else %}
+<div class="empty">
+  <p>Inga kommande beslut eller debatter är inbokade ännu.</p>
+  {% if nasta %}
+  <p>Nästa händelse i kammaren är {{ nasta.starts_at|date:"j F" }}: {{ nasta.summary }}.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if other_days %}
+<section class="chamber-ahead">
+  <h2>Nästa i kammaren</h2>
+  {% for day in other_days %}
+  <section class="day-block">
+    <h3>{{ day.datum|date:"l j F Y" }}</h3>
+    {% for event in day.events %}
+    <article class="event kind-annat">
+      <header class="event-head">
+        <time datetime="{{ event.starts_at|date:'c' }}">{% if event.status == "Ingen starttid" %}–{% else %}{{ event.starts_at|date:"H:i" }}{% endif %}</time>
+        <h3>{{ event.summary }}</h3>
+        {% if event.status and event.status != "Ingen starttid" %}<p class="muted">{{ event.status }}</p>{% endif %}
+      </header>
+    </article>
+    {% endfor %}
+  </section>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

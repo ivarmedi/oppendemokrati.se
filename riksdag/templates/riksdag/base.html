@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Öppen Demokrati{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,650;1,6..72,500&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'riksdag/app.css' %}">
+  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+</head>
+<body>
+  <a class="skip" href="#innehall">Hoppa till innehåll</a>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <p class="kicker">Riksdagen · öppna data</p>
+      <a class="wordmark" href="{% url 'ledamot_list' %}">Öppen Demokrati</a>
+      <p class="tagline">Vem röstar hur — och med vilket parti.</p>
+      <nav>
+        <a href="{% url 'ledamot_list' %}" {% if request.resolver_match.url_name == 'ledamot_list' or request.resolver_match.url_name == 'ledamot_detail' %}aria-current="page"{% endif %}>Ledamöter</a>
+        <a href="{% url 'votering_list' %}" {% if request.resolver_match.url_name == 'votering_list' or request.resolver_match.url_name == 'votering_detail' %}aria-current="page"{% endif %}>Voteringar</a>
+        <a href="{% url 'kommande_list' %}" {% if request.resolver_match.url_name == 'kommande_list' %}aria-current="page"{% endif %}>Kommande</a>
+      </nav>
+    </div>
+  </header>
+  <main id="innehall">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="colophon">
+    <p>Källa: <a href="https://data.riksdagen.se/">Riksdagens öppna data</a>. Partilinje är partiets vanligaste ja/nej/avstår i respektive votering. Frånvarande räknas inte.</p>
+  </footer>
+</body>
+</html>

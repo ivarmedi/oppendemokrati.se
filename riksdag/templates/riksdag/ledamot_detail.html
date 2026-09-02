@@ -1,0 +1,85 @@
+{% extends "riksdag/base.html" %}
+{% load riksdag_tags %}
+
+{% block title %}{{ ledamot.namn }} · Öppen Demokrati{% endblock %}
+
+{% block content %}
+<article class="profile">
+  <header class="profile-head">
+    <div class="portrait large">
+      {% if ledamot.bild_url %}
+      <img src="{{ ledamot.bild_url }}" alt="{{ ledamot.namn }}" width="192" height="256">
+      {% endif %}
+    </div>
+    <div>
+      <p class="badge" style="--parti: {{ ledamot.parti|parti_farg }}">{{ ledamot.parti }} · {{ ledamot.parti_namn }}</p>
+      <h1>{{ ledamot.namn }}</h1>
+      <p class="lede">{{ ledamot.valkrets }}{% if ledamot.fodd_ar %} · född {{ ledamot.fodd_ar }}{% endif %}</p>
+      {% if ledamot.status %}<p class="muted">{{ ledamot.status }}</p>{% endif %}
+      {% if ledamot.titel %}<p class="muted">{{ ledamot.titel }}</p>{% endif %}
+      {% if ledamot.riksdagen_url %}
+      <p><a class="plain" href="{{ ledamot.riksdagen_url }}" rel="noreferrer">Profil på riksdagen.se</a></p>
+      {% endif %}
+    </div>
+  </header>
+
+  <section class="stat-row">
+    <div class="stat">
+      <p class="stat-value">{{ ledamot.narvaro_pct|pct }}</p>
+      <p class="stat-label">Närvaro</p>
+      <p class="muted">{{ ledamot.antal_voteringar }} voteringar, {{ ledamot.antal_franvarande }} frånvarande</p>
+      {% include "riksdag/partials/sparkline.html" with points=charts.points metric="narvaro" caption="Närvaro per månad" %}
+    </div>
+    <div class="stat">
+      <p class="stat-value">{{ ledamot.partilinje_pct|pct }}</p>
+      <p class="stat-label">Med partilinjen</p>
+      <p class="muted">{{ ledamot.antal_med_partiet }} av {{ ledamot.antal_med_partiet|add:ledamot.antal_mot_partiet }} jämförda röster</p>
+      {% include "riksdag/partials/sparkline.html" with points=charts.points metric="partilinje" caption="Partilinje per månad" %}
+    </div>
+    <div class="stat">
+      <p class="stat-value">{{ ledamot.antal_mot_partiet }}</p>
+      <p class="stat-label">Avvikelser</p>
+      <p class="muted">Röster som skiljer sig från partiets linje</p>
+      {% include "riksdag/partials/sparkline.html" with points=charts.points metric="avvikelser" caption="Avvikelser per månad" %}
+    </div>
+  </section>
+
+  {% if uppdrag %}
+  <section>
+    <h2>Uppdrag</h2>
+    <ul class="uppdrag">
+      {% for row in uppdrag %}
+      <li>
+        <strong>{{ row.roll }}</strong>
+        {{ row.organ_namn|default:row.organ_kod }}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section>
+    <h2>Voteringar</h2>
+    <form class="filters compact"
+          hx-get="{{ ledamot.get_absolute_url }}"
+          hx-target="#rost-tabell"
+          hx-push-url="true"
+          hx-trigger="input delay:250ms, change">
+      <label class="search">
+        <span>Sök votering</span>
+        <input type="search" name="q" value="{{ q }}" placeholder="Beteckning eller titel" autocomplete="off">
+      </label>
+      <fieldset>
+        <legend>Visa</legend>
+        <label class="chip"><input type="radio" name="filter" value="" {% if not filter %}checked{% endif %}>Alla</label>
+        <label class="chip"><input type="radio" name="filter" value="mot" {% if filter == "mot" %}checked{% endif %}>Avvek</label>
+        <label class="chip"><input type="radio" name="filter" value="med" {% if filter == "med" %}checked{% endif %}>Med partiet</label>
+        <label class="chip"><input type="radio" name="filter" value="franvarande" {% if filter == "franvarande" %}checked{% endif %}>Frånvarande</label>
+      </fieldset>
+    </form>
+    <div id="rost-tabell">
+      {% include "riksdag/partials/ledamot_votes.html" %}
+    </div>
+  </section>
+</article>
+{% endblock %}

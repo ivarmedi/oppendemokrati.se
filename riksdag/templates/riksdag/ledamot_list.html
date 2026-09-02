@@ -1,0 +1,15 @@
+{% extends "riksdag/base.html" %}
+{% load riksdag_tags %}
+
+{% block title %}Ledamöter · Öppen Demokrati{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <h1>Ledamöter</h1>
+  <p>Alla som just nu sitter i kammaren. Sortera på närvaro, partilinje eller valkrets — klicka för den enskilda rösthistoriken.</p>
+</section>
+
+<div id="ledamot-panel">
+  {% include "riksdag/partials/ledamot_panel.html" %}
+</div>
+{% endblock %}

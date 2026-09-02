@@ -1,0 +1,24 @@
+{% if points %}
+<div class="spark" role="img" aria-label="{{ caption }}">
+  {% for point in points %}
+  <span class="spark-col{% if point.year_start %} is-year{% endif %}">
+    {% if metric == "narvaro" %}
+      {% if point.narvaro_height is not None %}
+      <span class="spark-bar" style="height: {{ point.narvaro_height }}%" title="{{ point.narvaro_title }}"></span>
+      {% else %}
+      <span class="spark-bar is-empty" title="{{ point.narvaro_title }}"></span>
+      {% endif %}
+    {% elif metric == "partilinje" %}
+      {% if point.partilinje_height is not None %}
+      <span class="spark-bar" style="height: {{ point.partilinje_height }}%" title="{{ point.partilinje_title }}"></span>
+      {% else %}
+      <span class="spark-bar is-empty" title="{{ point.partilinje_title }}"></span>
+      {% endif %}
+    {% else %}
+      <span class="spark-bar{% if not point.avvikelser %} is-empty{% endif %}" style="height: {{ point.avvikelser_height }}%" title="{{ point.avvikelser_title }}"></span>
+    {% endif %}
+    {% if point.year_start %}<span class="spark-year">{{ point.year }}</span>{% endif %}
+  </span>
+  {% endfor %}
+</div>
+{% endif %}
