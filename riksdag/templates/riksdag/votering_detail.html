@@ -82,23 +82,34 @@
     <header>
       <h2><i class="swatch" style="--parti: {{ group.kod|parti_farg }}"></i> {{ group.namn }}</h2>
       <p class="muted">
+        {% if group.follows_line %}
         Linje: <strong>{{ group.linje|default:"splittrat" }}</strong>
-        · Ja {{ group.counts.Ja }} · Nej {{ group.counts.Nej }} · Avstår {{ group.counts.Avstår }} · Frånvarande {{ group.counts.Frånvarande }}
+        ·
+        {% endif %}
+        Ja {{ group.counts.Ja }} · Nej {{ group.counts.Nej }} · Avstår {{ group.counts.Avstår }} · Frånvarande {{ group.counts.Frånvarande }}
       </p>
     </header>
     <ul class="roster">
       {% for rost in group.roster %}
-      <li>
+      <li{% if group.linje and rost.rost == group.linje %} class="is-line"{% endif %}>
         {% if rost.ledamot %}
         <a href="{{ rost.ledamot.get_absolute_url }}">{{ rost.namn }}</a>
         {% else %}
         {{ rost.namn }}
         {% endif %}
         <span class="vote {{ rost.rost|rost_klass }}">{{ rost.rost }}</span>
-        {% if rost.med_partiet == False %}<span class="warn">avvek</span>{% endif %}
+        {% if group.follows_line and rost.med_partiet == False %}<span class="warn">avvek</span>{% endif %}
       </li>
       {% endfor %}
     </ul>
+    {% if group.line_count %}
+    <details class="roster-toggle">
+      <summary>
+        <span class="when-shut">Visa alla {{ group.roster|length }}</span>
+        <span class="when-open">Dölj partilinjen</span>
+      </summary>
+    </details>
+    {% endif %}
   </section>
   {% endfor %}
 </article>

@@ -17,6 +17,7 @@ from django.db.models import Count, Q
 from django.utils import timezone
 
 from .models import Betankande, Ledamot, PartiLinje, Rost, Uppdrag, Votering
+from .parties import INDEPENDENT
 
 BASE = "https://data.riksdagen.se"
 CURRENT_TERM = ["2022/23", "2023/24", "2024/25", "2025/26"]
@@ -444,6 +445,7 @@ def compute_party_lines(rms) -> int:
     counts = (
         Rost.objects.filter(votering__rm__in=rms)
         .exclude(rost="Frånvarande")
+        .exclude(parti=INDEPENDENT)
         .values("votering_id", "parti", "rost")
         .annotate(n=Count("id"))
     )
@@ -472,6 +474,7 @@ def compute_party_lines(rms) -> int:
             UPDATE riksdag_rost
             SET med_partiet = CASE
                 WHEN rost = 'Frånvarande' THEN NULL
+                WHEN parti = %s THEN NULL
                 WHEN COALESCE((
                     SELECT pl.linje FROM riksdag_partilinje pl
                     WHERE pl.votering_id = riksdag_rost.votering_id
@@ -488,7 +491,7 @@ def compute_party_lines(rms) -> int:
                 SELECT votering_id FROM riksdag_votering WHERE rm IN ({placeholders})
             )
             """,
-            rms,
+            [INDEPENDENT, *rms],
         )
 
     tallies = (

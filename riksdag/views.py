@@ -9,7 +9,7 @@ from .calendar import fetch_upcoming, group_by_day
 from .charts import ledamot_charts
 from .documents import bakgrund_for
 from .models import Ledamot, PartiLinje, Rost, Uppdrag, Votering
-from .parties import PARTY_ORDER, PARTIES, party_name
+from .parties import PARTY_ORDER, PARTIES, has_party_line, party_name
 
 LEDAMOT_SORTS = {
     "namn": {"label": "Namn", "default_dir": "asc"},
@@ -283,13 +283,21 @@ def votering_detail(request, votering_id):
 
 
 def _party_group(kod, items, linje):
+    follows_line = has_party_line(kod)
+    if not follows_line:
+        linje = ""
     counts = {"Ja": 0, "Nej": 0, "Avstår": 0, "Frånvarande": 0}
+    line_count = 0
     for item in items:
         counts[item.rost] = counts.get(item.rost, 0) + 1
+        if linje and item.rost == linje:
+            line_count += 1
     return {
         "kod": kod,
         "namn": party_name(kod),
         "linje": linje,
+        "follows_line": follows_line,
         "roster": items,
         "counts": counts,
+        "line_count": line_count,
     }

@@ -438,6 +438,7 @@ select {
 .party-block { margin: 1.6rem 0; }
 .party-block header { margin-bottom: 0.5rem; }
 .party-block h2 { display: flex; align-items: center; gap: 0.45rem; font-size: 1.35rem; }
+.party-block:not(:has(.roster-toggle[open])) .roster .is-line { display: none; }
 .roster {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
@@ -452,6 +453,17 @@ select {
   border-bottom: 1px solid var(--rule);
   padding: 0.2rem 0;
 }
+.roster-toggle {
+  margin-top: 0.7rem;
+}
+.roster-toggle summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  width: fit-content;
+}
+.roster-toggle[open] .when-shut,
+.roster-toggle:not([open]) .when-open { display: none; }
 
 .day-block { margin: 1.6rem 0 2rem; }
 .day-block h2,

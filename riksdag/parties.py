@@ -11,7 +11,12 @@ PARTIES = {
     "-": {"name": "Partilös", "color": "#6b6560"},
 }
 
-PARTY_ORDER = ["S", "M", "SD", "V", "C", "KD", "L", "MP", "-"]
+INDEPENDENT = "-"
+PARTY_ORDER = ["S", "M", "SD", "V", "C", "KD", "L", "MP", INDEPENDENT]
+
+
+def has_party_line(code: str) -> bool:
+    return bool(code) and code != INDEPENDENT
 
 
 def party_name(code: str) -> str:
