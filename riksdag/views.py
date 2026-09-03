@@ -1,7 +1,10 @@
+from functools import wraps
+
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Case, ExpressionWrapper, F, FloatField, IntegerField, Q, Value, When
 from django.shortcuts import get_object_or_404, render
+from django.utils.cache import patch_cache_control
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 
@@ -33,12 +36,23 @@ VOTERING_SORTS = {
 }
 
 
-def cached_page(view):
-    return cache_page(settings.PAGE_CACHE_SECONDS)(vary_on_headers("HX-Request")(view))
-
-
 def is_htmx(request):
     return request.headers.get("HX-Request") == "true"
+
+
+def cached_page(view):
+    wrapped = cache_page(settings.PAGE_CACHE_SECONDS)(vary_on_headers("HX-Request")(view))
+
+    @wraps(view)
+    def inner(request, *args, **kwargs):
+        response = wrapped(request, *args, **kwargs)
+        if is_htmx(request):
+            patch_cache_control(response, private=True)
+        else:
+            patch_cache_control(response, public=True)
+        return response
+
+    return inner
 
 
 def _party_filters():
